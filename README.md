@@ -191,6 +191,10 @@ Currently, Nutify has been tested and confirmed working with the following UPS m
 
 - **Eaton 3S 550**
 - **APC Back-UPS RS 1600SI**
+- **APC Back-UPS XS 1300G (thanks to yeeahnick)**
+- **CyberPower BRG1500AVRLCD (thanks to drewstopherlee)**
+- **Back-UPS ES 850G2 (thanks to westridaz)**
+- **Smart-UPS 3000 RM (thanks to utlilb)**
 
 While Nutify should work with any UPS device supported by Network UPS Tools (NUT), these specific models have been verified for compatibility and optimal performance.
 
