@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<!-- templates/dashboard/sidebar.html -->
+<!-- Sidebar -->
+<aside class="sidebar">
+    <div class="sidebar-logo">
+        <p class="page_subtitle"></p>
+    </div>
+    <nav class="sidebar-nav">
+        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span class="nav-label">Home</span>
+        </a>
+
+        <a href="/energy" class="nav-item {% if request.path.startswith('/energy') %}active{% endif %}">
+            <i class="fas fa-lightbulb"></i>
+            <span class="nav-label">Energy</span>
+        </a>
+        <a href="/power" class="nav-item {% if request.path.startswith('/power') %}active{% endif %}">
+            <i class="fas fa-tachometer-alt"></i>
+            <span class="nav-label">Power</span>
+        </a>
+        <a href="/voltage" class="nav-item {% if request.path.startswith('/voltage') %}active{% endif %}">
+            <i class="fas fa-bolt"></i>
+            <span class="nav-label">Voltage</span>
+        </a>
+        <a href="/battery" class="nav-item {% if request.path.startswith('/battery') %}active{% endif %}">
+            <i class="fas fa-car-battery"></i>
+            <span class="nav-label">Battery</span>
+        </a>
+        <a href="/ups_info" class="nav-item {% if request.path.startswith('/ups_info') %}active{% endif %}">
+            <i class="fas fa-info-circle"></i>
+            <span class="nav-label">Info</span>
+        </a>
+
+        <a href="/upscmd" class="nav-item {% if request.path.startswith('/upscmd') %}active{% endif %}">
+            <i class="fas fa-terminal"></i>
+            <span class="nav-label">Command</span>
+        </a>
+        <a href="/upsrw" class="nav-item {% if request.path.startswith('/upsrw') %}active{% endif %}">
+            <i class="fas fa-edit"></i>
+            <span class="nav-label">Settings</span>
+        </a>
+        <a href="{{ url_for('events_page') }}" class="nav-item {% if request.path.startswith('/events') %}active{% endif %}">
+            <i class="fas fa-bell"></i>
+            <span class="nav-label">Events</span>
+        </a>
+        <a href="{{ url_for('api_page') }}" class="nav-item {% if request.path.startswith('/api') %}active{% endif %}">
+            <i class="fas fa-database"></i>
+            <span class="nav-label">APIs</span>
+        </a>
+
+    </nav>
+</aside> 
+
+

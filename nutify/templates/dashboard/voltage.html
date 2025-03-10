@@ -1,0 +1,117 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>Voltage Management</h1>
+            <p class="page_subtitle">Real-time monitoring of voltage, current and power quality</p>
+        </div>
+        <div class="page_actions">
+            <!-- Time Range Dropdown identico a quello di Energy -->
+            <div class="date_range">
+                <button class="date-range-btn" id="dateRangeBtn">
+                    <i class="fas fa-calendar"></i>
+                    <span class="selected-range">Today</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="date-range-dropdown hidden" id="dateRangeDropdown">
+                    <div class="range-options">
+                        <a href="#" data-range="realtime" class="active">Real Time</a>
+                        <a href="#" data-range="today">Today</a>
+                        <a href="#" data-range="day">Select Day</a>
+                        <a href="#" data-range="range">Date Range</a>
+                    </div>
+                    <div class="time-range-selector hidden" id="timeRangeSelector">
+                        <div class="time-input-group">
+                            <label>From:</label>
+                            <input type="time" id="fromTime" value="00:00">
+                        </div>
+                        <div class="time-input-group">
+                            <label>To:</label>
+                            <input type="time" id="toTime" value="23:59">
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyTimeRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                    <div class="day-selector hidden" id="daySelectorPanel">
+                        <input type="date" id="dayPicker" class="date-picker">
+                        <div class="day-actions">
+                            <button id="applyDay" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                    <div class="range-selector hidden" id="rangeSelectorPanel">
+                        <div class="range-input-group">
+                            <label>From:</label>
+                            <input type="date" id="rangeFromDate" class="date-picker">
+                        </div>
+                        <div class="range-input-group">
+                            <label>To:</label>
+                            <input type="date" id="rangeToDate" class="date-picker">
+                        </div>
+                        <div class="range-actions">
+                            <button id="applyRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                    <div class="realtime-selector hidden" id="realtimeSelectorPanel">
+                        <div class="time-input-group">
+                            <label>Update Interval (sec):</label>
+                            <input type="number" id="realtimeInterval" value="5" min="1">
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyRealTime" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Empty container for dynamic widgets -->
+    <div id="voltageWidgetsContainer" class="stats_grid">
+        <!-- The widgets will be inserted here dynamically -->
+    </div>
+
+    <!-- Main Charts Grid -->
+    <div class="charts_grid" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <!-- Main Chart -->
+        <div class="combined_card">
+            <div class="combined_header">
+                <h2>Voltage Monitor</h2>
+                <p class="combined_subtitle">Real-time voltage monitoring with nominal values</p>
+            </div>
+            <div id="voltageChart" class="chart-container" style="height:350px;"></div>
+        </div>
+
+        <!-- Transfer Chart -->
+        <div class="combined_card">
+            <div class="combined_header">
+                <h2>Transfer Thresholds</h2>
+                <p class="combined_subtitle">Operating voltage boundaries</p>
+            </div>
+            <div id="transferChart" class="chart-container" style="height:350px;"></div>
+        </div>
+
+        {% if metrics.input_current is defined or metrics.output_current is defined %}
+        <!-- Current Analysis -->
+        <div class="combined_card">
+            <!-- ... -->
+        </div>
+        {% endif %}
+
+        {% if metrics.input_frequency is defined or metrics.output_frequency is defined %}
+        <!-- Frequency Analysis -->
+        <div class="combined_card">
+            <!-- ... -->
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/voltage_page.js') }}"></script>
+{% endblock %} 

@@ -1,0 +1,83 @@
+VERSION = 0.1.3
+LAST_UPDATE = 10/03/2025
+STATUS = Testing
+
+CHANGELOG = """
+[10/03/2025]  0.1.3
+- Enhanced CLIENT mode reliability with multi-layered detection:
+  * Implemented triple-check system for mode detection (environment variable, flag file, nut.conf)
+  * Added intelligent driver management to skip local drivers in CLIENT mode
+  * Fixed issue with driver startup in CLIENT mode causing permission errors
+  * Improved error handling and logging for troubleshooting
+  * Added detailed debug information for mode detection
+- Improved service monitoring in CLIENT mode:
+  * Added smart host detection for UPS communication checks
+  * Enhanced error recovery for remote UPS connections
+  * Implemented graceful handling of driver failures in CLIENT mode
+- Updated documentation with comprehensive CLIENT mode information
+- Improved CLIENT mode functionality:
+  * Enhanced detection of CLIENT/SERVER mode using multiple indicators
+  * Added robust fallback mechanisms for mode detection
+  * Fixed issue with driver startup in CLIENT mode
+  * Improved error handling when connecting to remote UPS servers
+  * Added detailed debug logging for troubleshooting mode configuration
+- Updated documentation with clearer CLIENT mode setup instructions
+- Added more comprehensive error messages for improved troubleshooting
+- Expanded UPS driver support to include multiple specialized drivers:
+  * usbhid-ups: Standard driver for most modern USB UPS devices
+  * nutdrv_qx: Generic driver for Megatec/Q1 protocol UPS devices
+  * blazer_usb: For UPS devices using Megatec/Voltronic protocol (USB)
+  * blazer_ser: For UPS devices using Megatec/Voltronic protocol (Serial)
+  * snmp-ups: For network-connected UPS devices using SNMP
+  * richcomm_usb: For Richcomm-based UPS devices
+  * tripplite_usb: For Tripp Lite UPS devices
+  * riello_usb: For Riello UPS devices
+- Optimized driver build configuration for improved compilation stability
+- Updated documentation to reflect the expanded driver support
+- Added comprehensive guidance on selecting the appropriate driver for different UPS models
+- Added operational mode selection with new NUT_TYPE variable
+  * SERVER mode (default): Run full NUT server with local UPS drivers
+  * CLIENT mode: Connect to remote NUT server, no local drivers
+- Implemented automatic configuration based on selected mode:
+  * Dynamic nut.conf generation with appropriate MODE setting
+  * Automatic driver management based on operational mode
+  * Smart detection and handling of remote UPS connections
+- Added flag file mechanism to indicate client mode to all scripts
+- Enhanced documentation with detailed explanations of both modes
+- Improved user experience with clearer configuration options
+
+[08/03/2025] 0.1.2
+- Added international time format support with robust parsing for AM/PM notation
+- Added enhanced service summary at container startup
+- Improved default values for all configuration parameters
+- Simplified UPS authentication with automatic credential reuse
+- Clearly marked required parameters in configuration
+- Enhanced documentation in docker-compose.yaml
+- Added support for 'latest' Docker image tags (amd64-latest, arm64-latest, armv7-latest)
+- Updated documentation to reflect the new tagging system
+- Enhanced Docker Hub integration with automatic latest tag updates
+- Simplified deployment with always-updated images
+- Added automatic SSL certificate generation and management
+- Added SSL configuration options in docker-compose.yaml
+- Implemented secure HTTPS connections when SSL_ENABLED=true
+- Fixed permissions for SSL certificates and directory
+- Fixed Dockerfile build error by creating SSL directory instead of copying from non-existent source
+- Fixed dummy UPS fallback to only activate when USE_DUMMY_UPS=true
+- Added gunicorn with eventlet worker for robust SSL support
+- Improved SSL handling with dynamic WSGI file generation
+
+[07/03/2025] 0.1.1
+- Added automatic check and fix for SQLite database permissions
+- Improved templates to handle missing data correctly
+- Added existence checks for all fields in templates (battery.html, power.html, energy.html, header.html)
+- Fixed "sqlite3.OperationalError: attempt to write a readonly database" error
+- Enhanced error handling for UPS devices that don't provide all standard data
+- Modified Dockerfile to add nut user to necessary groups (plugdev, dialout, input, usb)
+- Added dummy UPS configuration file for fallback when no physical UPS is detected
+- Enabled startup and debug logging by default
+- Added netclient for remote UPS monitoring
+- Simplified UPS verification method
+
+[05/03/2025] 0.1.0
+- First version of Nutify
+"""

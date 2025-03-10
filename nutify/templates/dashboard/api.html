@@ -1,0 +1,63 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="upscmd_container" id="apiContainer">
+    <!-- Security Warning and Introduction -->
+
+
+    <!-- UPS Model Display -->
+    <div class="upscmd_card">
+        <div class="upscmd_card-header">
+            <h2>UPS API Documentation</h2>
+            <div class="upscmd_card-body text-center">
+                <button onclick="downloadFullApiJson()" class="upscmd_btn upscmd_btn-primary">
+                    Download Full API JSON
+                </button>
+            </div>
+        </div>
+        <div class="upscmd_card-body text-center">
+            <div id="ups-model" class="upscmd_stats-body"></div>
+        </div>
+    </div>
+
+    <!-- Static Data Section -->
+    <div class="upscmd_card">
+        <div class="upscmd_card-header">
+            <h2>Static Data</h2>
+        </div>
+        <div class="upscmd_card-body">
+            <div class="upscmd_commands-list" id="staticDataList"></div>
+            <template id="commandTemplate">
+                <div class="api_command-wrapper">
+                    <div class="api_command-item">
+                        <div class="api_command-name">
+                            <i class="fas fa-database"></i>
+                            <span class="column-name"></span>
+                        </div>
+                        <div class="api_command-description"></div>
+                    </div>
+                    <div class="api_log-details hidden">
+                        <pre class="api-data">Loading...</pre>
+                    </div>
+                </div>
+            </template>
+        </div>
+    </div>
+
+    <!-- Dynamic Data Section -->
+    <div class="upscmd_card">
+        <div class="upscmd_card-header">
+            <h2>Dynamic Data</h2>
+        </div>
+        <div class="upscmd_card-body">
+            <div class="upscmd_commands-list" id="dynamicDataList"></div>
+        </div>
+    </div>
+
+</div>
+
+
+
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/api_page.js') }}"></script>
+{% endblock %}

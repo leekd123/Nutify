@@ -1,0 +1,259 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>Power Management</h1>
+            <p class="page_subtitle">Real-time monitoring and analysis of UPS power output, efficiency, and load.</p>
+        </div>
+        <div class="page_actions">
+            <div class="date_range">
+                <button class="date-range-btn" id="dateRangeBtn">
+                    <i class="fas fa-calendar"></i>
+                    <span class="selected-range">Today</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="date-range-dropdown hidden" id="dateRangeDropdown">
+                    <div class="range-options">
+                        <a href="#" data-range="realtime">Real Time</a>
+                        <a href="#" data-range="today">Today</a>
+                        <a href="#" data-range="day">Select Day</a>
+                        <a href="#" data-range="range">Date Range</a>
+                    </div>
+
+                    <!-- Time Range Selector -->
+                    <div class="time-range-selector hidden" id="timeRangeSelector">
+                        <div class="time-inputs">
+                            <div class="time-input-group">
+                                <label>From:</label>
+                                <input type="time" id="fromTime" value="00:00">
+                            </div>
+                            <div class="time-input-group">
+                                <label>To:</label>
+                                <input type="time" id="toTime">
+                            </div>
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyTimeRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Day Selector -->
+                    <div class="day-selector hidden" id="daySelectorPanel">
+                        <input type="date" id="dayPicker" class="date-picker">
+                        <div class="day-actions">
+                            <button id="applyDay" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Range Selector -->
+                    <div class="range-selector hidden" id="dateRangeSelectorPanel">
+                        <div class="range-inputs">
+                            <div class="range-input-group">
+                                <label>From:</label>
+                                <input type="date" id="rangeFromDate" class="date-picker">
+                            </div>
+                            <div class="range-input-group">
+                                <label>To:</label>
+                                <input type="date" id="rangeToDate" class="date-picker">
+                            </div>
+                        </div>
+                        <div class="range-actions">
+                            <button id="applyRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Realtime Selector -->
+                    <div class="realtime-selector hidden" id="realtimeSelector">
+                        <div class="time-input-group">
+                            <label>Update Interval (sec):</label>
+                            <input type="number" id="realtimeInterval" value="1" min="1">
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyRealTime" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Stats Grid -->
+    <div class="stats_grid">
+        <!-- Real Power -->
+        {% if metrics.ups_realpower is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Real Power</span>
+                        <span class="selected-period">Today</span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="realpower">
+                    {% if metrics.ups_realpower > 0 %}
+                        {{ metrics.ups_realpower|round(1) }}W
+                    {% else %}
+                        --
+                    {% endif %}
+                </span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.ups_realpower and stats.ups_realpower.min is not none and stats.ups_realpower.max is not none %}
+                        Min: {{ stats.ups_realpower.min|round(1) }}W | Max: {{ stats.ups_realpower.max|round(1) }}W
+                    {% else %}
+                        Min: 0W | Max: 0W
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Input Voltage -->
+        {% if metrics.input_voltage is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Input Voltage</span>
+                        <span class="selected-period">Today</span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="voltage">
+                    {% if metrics.input_voltage > 0 %}
+                        {{ metrics.input_voltage|round(1) }}V
+                    {% else %}
+                        --
+                    {% endif %}
+                </span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.input_voltage and stats.input_voltage.min is not none and stats.input_voltage.max is not none %}
+                        Min: {{ stats.input_voltage.min|round(1) }}V | Max: {{ stats.input_voltage.max|round(1) }}V
+                    {% else %}
+                        Min: 0V | Max: 0V
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Output Voltage -->
+        {% if metrics.output_voltage is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-plug"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Output Voltage</span>
+                        <span class="selected-period">Today</span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="output_voltage">
+                    {% if metrics.output_voltage > 0 %}
+                        {{ metrics.output_voltage|round(1) }}V
+                    {% else %}
+                        --
+                    {% endif %}
+                </span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.output_voltage and stats.output_voltage.min is not none and stats.output_voltage.max is not none %}
+                        Min: {{ stats.output_voltage.min|round(1) }}V | Max: {{ stats.output_voltage.max|round(1) }}V
+                    {% else %}
+                        Min: 0V | Max: 0V
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- UPS Status -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">UPS Status</span>
+                        <span class="selected-period">Today</span>
+                    </div>
+                </div>
+                <div class="power-mini-info">
+                    <div class="mini-info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value" data-type="status">
+                            {% if data.ups_status is defined %}
+                                {{ data.ups_status|default('N/A') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="mini-info-row">
+                        <span class="info-label">Load:</span>
+                        <span class="info-value" data-type="load">
+                            {% if data.ups_load is defined %}
+                                {{ data.ups_load|default('N/A') }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="mini-info-row">
+                        {% if data.ups_realpower_nominal is defined and data.ups_realpower_nominal > 0 %}
+                            <span class="info-label">Nominal Power:</span>
+                            <span class="info-value" data-type="nominal">
+                                {{ data.ups_realpower_nominal|round(1) }}W
+                            </span>
+                        {% elif data.ups_power_nominal is defined and data.ups_power_nominal > 0 %}
+                            <span class="info-label">Nominal Power:</span>
+                            <span class="info-value" data-type="nominal">
+                                {{ data.ups_power_nominal|round(1) }}W
+                            </span>
+                        {% else %}
+                            <span class="info-label">Manual Nominal Power:</span>
+                            <span class="info-value" data-type="nominal">
+                                {{ ups_nominal_power|default(1000) }}W
+                            </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Grid -->
+    <div class="charts_grid">
+        <div class="combined_card">
+            <div class="combined_header">
+                <h2>Power Analysis</h2>
+                <p class="combined_subtitle">UPS Power, Real Power and Input Voltage</p>
+            </div>
+            <div id="combinedPowerChart" class="combined_container"></div>
+        </div>
+    </div>
+
+    <!-- Bottom Section -->
+    <div class="bottom_grid">
+        <!-- Additional charts or statistics for power can be added here -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- ApexCharts is loaded in base.html or elsewhere -->
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/power.js') }}"></script>
+{% endblock %}

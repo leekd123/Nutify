@@ -1,0 +1,23 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>UPS Information</h1>
+
+        </div>
+    </div>
+
+    <!-- Add Tailwind classes after stats_grid -->
+    <div class="stats_grid">
+        <!-- Populated by JavaScript -->
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/ups_info.js') }}"></script>
+{% endblock %} 

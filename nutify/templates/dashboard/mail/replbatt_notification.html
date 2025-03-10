@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            line-height: 1.5;
+            margin: 0;
+            padding: 0;
+            background-color: #f7fafc;
+        }
+
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2rem;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header specific for REPLBATT - Warning Style */
+        .email-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding: 2rem;
+            background-color: #fff7ed;
+            border-bottom: 3px solid #f97316;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .email-alert-icon {
+            font-size: 3rem;
+            color: #f97316;
+            margin-bottom: 1rem;
+        }
+
+        .email-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #d97706;
+            margin: 0;
+        }
+
+        .email-subtitle {
+            font-size: 1rem;
+            color: #d97706;
+            opacity: 0.9;
+            margin-top: 0.5rem;
+        }
+
+        {% if is_problematic_provider %}
+        /* Table-based layout for problematic email clients */
+        .email-stats-grid {
+            width: 100%;
+            display: table;
+            border-collapse: separate;
+            border-spacing: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .email-stats-row {
+            display: table-row;
+        }
+
+        .email-stat-card {
+            display: table-cell;
+            width: 50%;
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #f97316;
+            vertical-align: top;
+        }
+        {% else %}
+        /* Modern layout for good email clients */
+        .email-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .email-stat-card {
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #f97316;
+        }
+        {% endif %}
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: #64748b;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .email-warning-box {
+            background-color: #fff7ed;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .email-warning-title {
+            color: #f97316;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .email-maintenance-steps {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .maintenance-title {
+            color: #2d3748;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .maintenance-list {
+            list-style: decimal;
+            padding-left: 1.5rem;
+            margin: 0;
+            color: #4a5568;
+        }
+
+        .maintenance-list li {
+            margin-bottom: 0.5rem;
+        }
+
+        .email-info-section {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #f8fafc;
+            border-radius: 6px;
+        }
+
+        .email-info-section h3 {
+            margin-top: 0;
+            color: #2d3748;
+        }
+
+        .email-info-section ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .email-info-section li {
+            margin-bottom: 0.5rem;
+            color: #4a5568;
+        }
+
+        /* Footer styles */
+        .email-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+            color: #64748b;
+        }
+
+        .footer-links {
+            display: inline-block;
+            margin: 1rem 0;
+            padding: 0.5rem 1rem;
+            background-color: #f8fafc;
+            border-radius: 6px;
+            line-height: 1.75;
+        }
+
+        .footer-link {
+            color: #64748b;
+            text-decoration: none;
+            padding: 0 0.5rem;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: #3b82f6;
+        }
+
+        .footer-separator {
+            color: #94a3b8;
+            margin: 0 0.5rem;
+        }
+
+        .footer-icon {
+            display: inline-block;
+            margin-right: 0.25rem;
+            vertical-align: middle;
+        }
+
+        .footer-copyright {
+            margin-top: 1rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <div class="email-alert-icon">⚠️</div>
+            <h1 class="email-title">{% if is_test %}[TEST] {% endif %}Battery Replacement</h1>
+            <p class="email-subtitle">{{ ups_model }} - Battery Replacement Required</p>
+        </div>
+
+        <div class="email-content">
+            <div class="email-warning-box">
+                <div class="email-warning-title">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Maintenance Required
+                </div>
+                <p>The UPS battery has reached the end of its useful life and must be replaced to ensure system protection.</p>
+            </div>
+
+            {% if is_problematic_provider %}
+            <div class="email-stats-grid">
+                <div class="email-stats-row">
+                    <div class="email-stat-card">
+                        <div class="stat-label">Battery Age</div>
+                        <div class="stat-value">{{ battery_age }}</div>
+                    </div>
+                    <div class="email-stat-card">
+                        <div class="stat-label">Battery Efficiency</div>
+                        <div class="stat-value">{{ battery_efficiency }}</div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="email-stats-grid">
+                <div class="email-stat-card">
+                    <div class="stat-label">Battery Age</div>
+                    <div class="stat-value">{{ battery_age }}</div>
+                </div>
+                <div class="email-stat-card">
+                    <div class="stat-label">Battery Efficiency</div>
+                    <div class="stat-value">{{ battery_efficiency }}</div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="email-maintenance-steps">
+                <div class="maintenance-title">Replacement Procedure</div>
+                <ol class="maintenance-list">
+                    <li>Purchase a compatible replacement battery for model {{ ups_model }}</li>
+                    <li>Turn off and fully disconnect the UPS</li>
+                    <li>Follow the user manual for the replacement procedure</li>
+                    <li>Recalibrate the battery after installation</li>
+                    <li>Dispose of the old battery according to local regulations</li>
+                </ol>
+            </div>
+
+            <div class="email-info-section">
+                <h3>Event Details</h3>
+                <ul>
+                    <li>Date: {{ event_date }}</li>
+                    <li>Time: {{ event_time }}</li>
+                    <li>Battery Type: {{ battery_type }}</li>
+                    <li>Nominal Voltage: {{ battery_voltage_nominal }}V</li>
+                    <li>Current Voltage: {{ battery_voltage }}V</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="email-footer">
+            <p>🔧 Maintenance notification from your UPS Monitor system</p>
+            <div class="footer-links">
+                <span class="footer-icon">&#128187;</span>
+                <a href="https://github.com/DartSteven/Nutify" class="footer-link">github.com/DartSteven/Nutify</a>
+                <span class="footer-separator">|</span>
+                <span class="footer-icon">&#9749;</span>
+                <a href="https://buymeacoffee.com/dartsteven" class="footer-link">buymeacoffee.com/dartsteven</a>
+            </div>
+            <p class="footer-copyright">© {{ current_year }} UPS Monitor. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html> 

@@ -1,0 +1,55 @@
+<!-- Header with isolated classes -->
+<header class="header_top">
+    <div class="header_top-status_container">
+        <div class="header_top-status_bar">
+            <div class="header_top-status_info">
+                <div class="header_top-ups_info">
+                    <span class="header_top-model">
+                        {% if data.device_model is defined %}
+                            {{ data.device_model }}
+                        {% else %}
+                            Unknown Model
+                        {% endif %}
+                    </span>
+                    <span class="header_top-serial">S/N: 
+                        {% if data.device_serial is defined %}
+                            {{ data.device_serial }}
+                        {% else %}
+                            Unknown
+                        {% endif %}
+                    </span>
+                </div>
+                <h3><i class="fas fa-plug"></i><span id="upsStatus">--</span></h3>
+                <span class="header_top-battery">
+                    <i class="fas fa-battery-three-quarters"></i> Battery: --%
+                </span>
+                <span class="header_top-load">
+                    <i class="fas fa-tachometer-alt"></i> Load: --%
+                </span>
+                <span class="header_top-power">
+                    <i class="fas fa-bolt"></i> Power: --W
+                </span>
+                <div>
+                    <span id="currentTime"></span>
+                </div>
+        
+                <div class="header_top-icons">
+                    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+                        <i class="fas fa-circle-half-stroke"></i>
+                    </button>
+                    <span class="header_top-settings" title="Settings">
+                        <a href="/settings" class="{% if request.path.startswith('/settings') %}active{% endif %}">
+                            <i class="fas fa-cog"></i>
+                        </a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Include header.js -->
+<script src="{{ url_for('static', filename='js/header.js') }}"></script>
+
+
+

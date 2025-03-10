@@ -1,0 +1,189 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}UPS Commands{% endblock %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>UPS Commands</h1>
+            <p class="page_subtitle">UPS Management and Command Control</p>
+        </div>
+    </div>
+
+    <!-- Security Warning and Introduction -->
+    <div class="stats_grid">
+        <!-- Security Warning -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">Attention - UPS Command Area</span>
+                </div>
+                <p>This page allows you to send direct commands to the UPS. Improper use can cause:</p>
+                <ul>
+                    <li>Immediate system shutdown</li>
+                    <li>Data loss</li>
+                    <li>Hardware damage</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Introduction -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">UPS Command Management</span>
+                </div>
+                <p>This interface allows you to send direct commands to the UPS to control functions such as:</p>
+                <ul>
+                    <li>Beeper management</li>
+                    <li>Battery test</li>
+                    <li>Load control</li>
+                    <li>Shutdown operations</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Commands Section -->
+    <div class="combined_card">
+        <div class="combined_header">
+            <h2>Available Commands</h2>
+            <button id="refreshCommands" class="btn-primary">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+        <div id="commandsList" class="stats_grid">
+            <!-- Commands will be inserted here dynamically -->
+        </div>
+    </div>
+    <br>
+    <!-- Statistics and Log Section -->
+
+        <!-- Command Statistics Section -->
+        <div class="combined_card">
+            <div class="combined_header">
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <h2>Command Statistics</h2>
+                </div>
+            </div>
+            <div class="stats_grid">
+                <div class="stat_card mini">
+                    <div class="stat-icon">
+                        <i class="fas fa-terminal"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-header">
+                            <span class="stat-label">Total Commands</span>
+                        </div>
+                        <span id="totalCommands" class="stat-value">0</span>
+                    </div>
+                </div>
+                <div class="stat_card mini">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-header">
+                            <span class="stat-label">Successful Commands</span>
+                        </div>
+                        <span id="successfulCommands" class="stat-value">0</span>
+                    </div>
+                </div>
+                <div class="stat_card mini">
+                    <div class="stat-icon">
+                        <i class="fas fa-times-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-header">
+                            <span class="stat-label">Failed Commands</span>
+                        </div>
+                        <span id="failedCommands" class="stat-value">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Commands Log Section -->
+            <div class="combined_header" style="margin-top: 1rem;">
+                <h3>Recent Commands Log</h3>
+                <button id="clearLogs" class="btn-primary btn-small">
+                    <i class="fas fa-eraser"></i> Clear
+                </button>
+            </div>
+            <div id="commandLog" class="command-log-container">
+                <!-- The logs will be inserted here dynamically -->
+            </div>
+        </div>
+
+
+    <!-- Confirm Command Modal -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="confirmModalLabel">Confirm Command</h3>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Dynamic content -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="upscmd_btn upscmd_btn-primary" id="confirmCommand">Execute</button>
+                <button type="button" class="upscmd_btn upscmd_btn-secondary modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Delete Modal -->
+    <div id="clearConfirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Delete</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete all command logs?</p>
+                <p>This operation cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="upscmd_btn upscmd_btn-danger" id="confirmClear">Clear</button>
+                <button type="button" class="upscmd_btn upscmd_btn-secondary modal-close">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Command Info Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Command Information</h3>
+            </div>
+            <div class="modal-body">
+                <h4 id="infoTitle" class="mb-3"></h4>
+                <p id="infoDescription" class="mb-3"></p>
+                <div class="upscmd_warning-section">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span id="infoWarning"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="upscmd_btn upscmd_btn-secondary modal-close">Close</button>
+            </div>
+        </div>
+    </div>
+    <!-- Socket Status -->
+    <div class="upscmd_socket-status">
+        <span class="socket_connected hidden">🟢 Socket Connected</span>
+        <span class="socket_disconnected">🔴 Socket Disconnected</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upscmd_page.js') }}"></script>
+{% endblock %} 

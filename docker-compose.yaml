@@ -1,0 +1,81 @@
+services:
+  nut:
+#    image: dartsteven/nutify:amd64-latest                # Official Nutify image for AMD64 architecture (use amd64-latest, arm64-latest, or armv7-latest)
+    build: . # Or build from source                   # Uncomment to build from source instead of using pre-built image
+    container_name: TESTr                       # Name of the container in Docker
+    privileged: true                                    # Grants extended privileges to the container for hardware access
+    cap_add:                                            # Additional Linux capabilities for the container
+      - SYS_ADMIN                                       # Allows administrative operations
+      - SYS_RAWIO                                       # Allows direct I/O access
+      - MKNOD                                           # Allows creation of special files
+    devices:                                            # Device mapping from host to container
+      - /dev/bus/usb:/dev/bus/usb:rwm                   # Maps USB devices for UPS detection (read-write-mknod)
+    device_cgroup_rules:                                # Control group rules for device access
+      - 'c 189:* rwm'                                   # USB device access rule (character device 189)
+    environment:                                        # Environment variables for container configuration
+      # ===== SERVER CONFIGURATION =====
+      - SERVER_NAME=TEX                                    # Name of the server (displayed in UI) [default: Nutify]
+      - SERVER_PORT=5050                                # Port for web interface [default: 5050]
+      - SERVER_HOST=0.0.0.0                             # Host address to bind web server [default: 0.0.0.0]
+      - TIMEZONE=Europe/Rome                                       # Timezone for date/time display (e.g., Europe/Rome) [default: UTC]
+      - ENCRYPTION_KEY=                                 # REQUIRED: Secret key for data encryption (32+ chars, use letters, numbers, and symbols like -_)
+      
+      # ===== UPS CONNECTION SETTINGS =====
+      - NUT_TYPE=CLIENT                               # Container operation mode [SERVER/CLIENT]:
+                                                      # - SERVER: Run full NUT server with drivers (default)
+                                                      # - CLIENT: Connect to remote NUT server, no local drivers
+      - UPS_HOST=192.168.11.10                                       # IP/hostname of UPS [default: localhost for local USB connection]
+                                                        # Set to IP address of remote NUT server when NUT_TYPE=CLIENT
+      - UPS_NAME=ups                                    # Name of the UPS in NUT configuration [default: ups]
+      - UPS_DRIVER=usbhid-ups                           # NUT driver for UPS [default: usbhid-ups for USB connected UPS]
+                                                        # Supported drivers include:
+                                                        # - usbhid-ups: For most modern USB UPS devices
+                                                        # - nutdrv_qx: For Megatec/Q1 protocol UPS devices
+                                                        # - blazer_usb: For UPS devices using Megatec/Voltronic protocol (USB)
+                                                        # - blazer_ser: For UPS devices using Megatec/Voltronic protocol (Serial)
+                                                        # - snmp-ups: For remote network-connected UPS with SNMP support
+                                                        # - richcomm_usb: For Richcomm-based UPS devices
+                                                        # - tripplite_usb: For Tripp Lite UPS devices
+                                                        # - riello_usb: For Riello UPS devices
+      - UPS_PORT=auto                                   # Port for UPS connection [default: auto]
+                                                        # For SNMP connections, set to 161 (standard SNMP port)
+      - UPS_REALPOWER_NOMINAL=1000                      # Nominal power of UPS in watts [default: 1000]
+      
+      # ===== UPS AUTHENTICATION =====
+      - UPS_USER=admin                                  # Username for UPS authentication [default: admin]
+      - UPS_PASSWORD=hunter2                            # Password for UPS authentication [default: hunter2]
+      
+      # ===== UPS COMMAND SETTINGS =====
+      # UPSCMD_USER and UPSCMD_PASSWORD are automatically set to UPS_USER and UPS_PASSWORD values
+      # You can override them by uncommenting the following lines:
+      # - UPSCMD_USER=admin                             # Username for sending commands to UPS
+      # - UPSCMD_PASSWORD=hunter2                       # Password for sending commands to UPS
+      
+      # ===== LOGGING CONFIGURATION =====
+      - LOG=true                                       # Enable/disable logging (true/false)
+      - LOG_LEVEL=DEBUG                                 # Log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+      - LOG_WERKZEUG=true                              # Enable/disable Flask's Werkzeug logs
+      - ENABLE_LOG_STARTUP=Y                            # Set to Y to enable essential startup logs
+      
+      # ===== DUMMY UPS CONFIGURATION =====
+      - USE_DUMMY_UPS=false                             # Set to true to use dummy UPS when no physical UPS is detected
+      - DUMMY_UPS_NAME=dummy                            # Name for the dummy UPS in NUT configuration
+      - DUMMY_UPS_DRIVER=dummy-ups                      # Driver for dummy UPS (must be dummy-ups)
+      - DUMMY_UPS_PORT=dummy                            # Port for dummy UPS connection
+      - DUMMY_UPS_DESC=Virtual UPS for testing          # Description for the dummy UPS
+      
+      # ===== SSL CONFIGURATION =====
+      - SSL_ENABLED=false                               # Enable/disable HTTPS (true/false)
+      
+    ports:                                              # Port mapping from host to container
+      - 3493:3493                                       # NUT server port
+      - 5050:5050                                       # Web interface port
+      - 443:443                                         # HTTPS port (when SSL_ENABLED=true)
+    volumes:                                            # Volume mapping for persistent data
+      - ./nut_data:/var/run/nut                         # NUT runtime data
+      - ./nutify/logs:/app/nutify/logs                  # Log files
+      - ./nutify/instance:/app/nutify/instance          # Application data including SQLite database
+      - ./ssl:/app/ssl                                  # SSL certificates directory
+    restart: always                                     # Restart policy (always restart on failure)
+    user: root                                          # Run container as root user for hardware access
+

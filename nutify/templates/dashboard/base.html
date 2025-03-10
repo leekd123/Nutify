@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+        // Take the theme from localStorage or the operating system
+        let theme = localStorage.getItem('theme')
+        if (!theme) {
+            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+        }
+        // Apply the theme to the root
+        document.documentElement.setAttribute('data-theme', theme)
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="timezone" content="{{ timezone }}">
+    <script>
+        // App configuration
+        window.APP_CONFIG = { timezone: "{{ timezone }}" };
+    </script>
+
+    <title>UPS Monitor - Dashboard</title>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+          
+    <!-- Icons FontAwesome 6.7.2 -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/fontawesome/css/all.min.css') }}">
+       
+    <!-- Charts ApexCharts -->
+    <script src="{{ url_for('static', filename='js/lib/apexcharts/apexcharts.min.js') }}"></script>
+
+    <!-- Chart.js and plugins -->
+    <script src="{{ url_for('static', filename='js/lib/chartjs/chart.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs/luxon.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs/chartjs-adapter-luxon.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/lib/chartjs/chartjs-plugin-streaming.min.js') }}"></script>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
+    
+    <!-- Socket.IO client -->
+    <script src="{{ url_for('static', filename='js/lib/socketio/socket.io.js') }}"></script>
+    
+    <script src="{{ url_for('static', filename='js/logger.js') }}"></script>
+    <script>
+        window.webLogger.enable(true);
+    </script>
+
+    {% block styles %}{% endblock %}
+</head>
+<body>
+    <!-- Logger must be loaded before everything else -->
+    <script src="{{ url_for('static', filename='js/logger.js') }}"></script>
+    <script>
+        // Enable logger by default
+        window.webLogger.enable(true);
+    </script>
+
+    <!-- Include Sidebar -->
+    {% include "dashboard/sidebar.html" %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Include Header -->
+        {% include "dashboard/header.html" %}
+
+        <!-- Content -->
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Socket.IO initialization -->
+    <script>
+        var socket = io();
+        socket.on('connect', function() {
+            console.log('Connected to WebSocket');
+        });
+
+        socket.on('ups_update', function(data) {
+            // Handle UPS updates
+            console.log('Received UPS update:', data);
+            // Update UI data
+        });
+    </script>
+    
+    <!-- Page Specific Scripts -->
+    {% block scripts %}
+
+
+    {% endblock %}
+</body>
+</html>

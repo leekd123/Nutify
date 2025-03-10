@@ -1,0 +1,223 @@
+#!/bin/bash
+set -e
+
+# FORCE ENABLE_LOG_STARTUP to "N" unless it's explicitly "Y"
+# This ensures consistent behavior across all environments
+if [ "$ENABLE_LOG_STARTUP" != "Y" ]; then
+    # Force to N regardless of previous value
+    ENABLE_LOG_STARTUP="N"
+fi
+export ENABLE_LOG_STARTUP
+
+# FORCE SSL_ENABLED to "false" unless it's explicitly "true"
+# This ensures consistent behavior for SSL configuration
+if [ "$SSL_ENABLED" != "true" ]; then
+    # Force to false regardless of previous value
+    SSL_ENABLED="false"
+fi
+export SSL_ENABLED
+
+# Function to log startup messages
+startup_log() {
+    local message="$1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    # Create log directory if it doesn't exist
+    mkdir -p /var/log/nut 2>/dev/null
+    
+    # Ensure debug log file exists
+    touch /var/log/nut-debug.log
+    
+    # Log to file always
+    echo "[${timestamp}] ${message}" >> /var/log/nut-debug.log
+    
+    # For console output, only if ENABLE_LOG_STARTUP is exactly "Y"
+    if [ "$ENABLE_LOG_STARTUP" = "Y" ]; then
+        echo "[ENTRYPOINT] ${message}"
+    fi
+}
+
+# Debug logging function for backward compatibility
+debug_log() {
+    local message="$1"
+    local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
+    
+    # Always log to file
+    echo "[DEBUG] ${timestamp}: ${message}" >> /var/log/nut-debug.log
+    
+    # Only log to console if DEBUG=Y and ENABLE_LOG_STARTUP=Y
+    if [ "${DEBUG}" = "Y" ] && [ "$ENABLE_LOG_STARTUP" = "Y" ]; then
+        echo "[DEBUG] ${timestamp}: ${message}"
+    fi
+}
+
+# Function to translate UPS status
+translate_ups_status() {
+    local status="$1"
+    # Replace common status codes with full text
+    status=$(echo "$status" | sed -e 's/OL/Online/g' \
+                                 -e 's/OB/On Battery/g' \
+                                 -e 's/LB/Low Battery/g' \
+                                 -e 's/HB/High Battery/g' \
+                                 -e 's/RB/Replace Battery/g' \
+                                 -e 's/CHRG/Charging/g' \
+                                 -e 's/DISCHRG/Discharging/g' \
+                                 -e 's/BYPASS/On Bypass/g' \
+                                 -e 's/CAL/Calibration/g' \
+                                 -e 's/OFF/Offline/g' \
+                                 -e 's/OVER/Overloaded/g' \
+                                 -e 's/TRIM/Trimming Voltage/g' \
+                                 -e 's/BOOST/Boosting Voltage/g')
+    echo "$status"
+}
+
+# Function to format value with unit
+format_value() {
+    local value="$1"
+    local unit="$2"
+    
+    if [ "$value" = "N/A" ] || [ "$value" = "Not Supported" ] || [ -z "$value" ]; then
+        echo "Not Available"
+    else
+        case "$unit" in
+            "V") echo "${value} Volts" ;;
+            "Hz") echo "${value} Hertz" ;;
+            "%") echo "${value}%" ;;
+            "C") echo "${value}°C" ;;
+            *) echo "$value" ;;
+        esac
+    fi
+}
+
+# Function to get UPS variables (after UPS is online)
+get_ups_var() {
+    local var=$1
+    local default=$2
+    local unit=""
+    
+    result=$(upsc ups@localhost "$var" 2>/dev/null || echo "$default")
+    
+    # Determine unit based on variable name
+    case "$var" in
+        *voltage*) unit="V" ;;
+        *frequency*) unit="Hz" ;;
+        *charge* | *load*) unit="%" ;;
+        *temperature*) unit="C" ;;
+        ups.status) 
+            result=$(translate_ups_status "$result")
+            unit="" ;;
+        *) unit="" ;;
+    esac
+    
+    # Format the value with appropriate unit
+    if [ "$var" != "ups.status" ]; then
+        result=$(format_value "$result" "$unit")
+    fi
+    
+    echo "$result"
+}
+
+# Function to format runtime
+format_runtime() {
+    local seconds="$1"
+    if [ "$seconds" = "N/A" ] || [ "$seconds" = "Not Supported" ]; then
+        echo "Not Supported"
+        return
+    fi
+    # Ensure seconds is a number
+    if ! echo "$seconds" | grep -q '^[0-9][0-9]*$'; then
+        echo "Not Available"
+        return
+    fi
+    local minutes=$((seconds / 60))
+    local remaining_seconds=$((seconds % 60))
+    echo "${minutes} minutes and ${remaining_seconds} seconds"
+}
+
+# Always show startup message regardless of log settings
+echo ""
+
+# Log basic startup information using startup_log function
+startup_log "Starting NUT environment preparation"
+startup_log "Using UPS configuration: ${UPS_NAME}@${UPS_HOST}"
+
+# Check if dummy UPS is enabled
+USE_DUMMY_UPS=${USE_DUMMY_UPS:-false}
+if [ "$USE_DUMMY_UPS" = "true" ]; then
+    DUMMY_UPS_NAME=${DUMMY_UPS_NAME:-dummy}
+    DUMMY_UPS_DRIVER=${DUMMY_UPS_DRIVER:-dummy-ups}
+    DUMMY_UPS_PORT=${DUMMY_UPS_PORT:-dummy}
+    DUMMY_UPS_DESC=${DUMMY_UPS_DESC:-"Virtual UPS for testing"}
+    
+    # Always use startup_log for consistent logging behavior
+    startup_log "Dummy UPS configuration enabled:"
+    startup_log "  Name: ${DUMMY_UPS_NAME}"
+    startup_log "  Driver: ${DUMMY_UPS_DRIVER}"
+    startup_log "  Port: ${DUMMY_UPS_PORT}"
+    startup_log "  Description: ${DUMMY_UPS_DESC}"
+fi
+
+# Create log directories and files before any redirects
+mkdir -p /var/log/nut
+chmod 755 /var/log/nut
+
+if [ "${ENABLE_LOGS}" = "Y" ]; then
+    for logfile in /var/log/msmtp.log /var/log/battery-monitor.log /var/log/nut-debug.log; do
+        touch "$logfile"
+        chown nut:nut "$logfile"
+        chmod 666 "$logfile"
+    done
+    startup_log "Log files created and permissions set"
+fi
+
+# Clean up any existing PID files to prevent conflicts
+startup_log "Cleaning up existing PID files..."
+find /var/run/nut /run -name "*.pid" -type f -delete
+rm -f /var/run/nut/* 2>/dev/null
+
+# Ensure NUT directory permissions
+startup_log "Setting up NUT directories..."
+mkdir -p /var/run/nut /etc/nut /var/log/nut
+chown -R nut:nut /var/run/nut /etc/nut /var/log/nut
+chmod 750 /var/run/nut /etc/nut
+chmod 755 /var/log/nut
+startup_log "NUT directories prepared with correct permissions"
+
+# Fix USB permissions if applicable
+if [ -d "/dev/bus/usb" ]; then
+    chown -R root:nut /dev/bus/usb
+    chmod -R g+rw /dev/bus/usb
+    startup_log "USB device permissions updated"
+fi
+
+# We don't redirect output to /dev/null anymore to ensure MOTD and summary are always visible
+# Instead, we'll let start-services.sh handle the redirection as needed
+
+# Generate msmtp configuration for email notifications
+startup_log "Generating email configuration..."
+cat > /etc/msmtprc << EOF
+# Set default values for all following accounts.
+defaults
+auth           on
+tls            on
+tls_trust_file /etc/ssl/certs/ca-certificates.crt
+logfile        /var/log/msmtp.log
+
+# Mail account configuration
+account        default
+host           ${SMTP_HOST:-localhost}
+port           ${SMTP_PORT:-25}
+from           ${NOTIFY_FROM:-ups@localhost}
+user           ${SMTP_USER:-}
+password       ${SMTP_PASS:-}
+EOF
+
+chmod 640 /etc/msmtprc
+chown root:nut /etc/msmtprc
+
+# Log completion using startup_log function
+startup_log "Email configuration completed"
+startup_log "Environment preparation complete, starting services..."
+
+# Done with environment preparation, pass control to start-services.sh
+exec "$@"

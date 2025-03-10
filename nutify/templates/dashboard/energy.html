@@ -1,0 +1,216 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>Energy Management</h1>
+            <p class="page_subtitle">Comprehensive analysis of your UPS energy consumption and costs</p>
+        </div>
+        <div class="page_actions">
+            <div class="rate_display">
+                <span class="rate_label">Current Rate:</span>
+                <span class="rate_value"></span>
+                <a href="/settings#variables" class="rate_edit" title="Edit in Settings">
+                    <i class="fas fa-edit"></i>
+                </a>
+            </div>
+            <div class="date_range">
+                <button class="date-range-btn" id="dateRangeBtn">
+                    <i class="fas fa-calendar"></i>
+                    <span class="selected-range">Today</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="date-range-dropdown hidden" id="dateRangeDropdown">
+                    <div class="range-options">
+                        <a href="#" data-range="realtime">Real Time</a>
+                        <a href="#" data-range="today">Today</a>
+                        <a href="#" data-range="day">Select Day</a>
+                        <a href="#" data-range="range">Date Range</a>
+                    </div>
+
+                    <!-- Time Range Selector -->
+                    <div class="time-range-selector hidden" id="timeRangeSelector">
+                        <div class="time-inputs">
+                            <div class="time-input-group">
+                                <label>From:</label>
+                                <input type="time" id="fromTime" value="00:00">
+                            </div>
+                            <div class="time-input-group">
+                                <label>To:</label>
+                                <input type="time" id="toTime">
+                            </div>
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyTimeRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Day Selector -->
+                    <div class="day-selector hidden" id="daySelectorPanel">
+                        <input type="date" id="dayPicker" class="date-picker">
+                        <div class="day-actions">
+                            <button id="applyDay" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Range Selector -->
+                    <div class="range-selector hidden" id="dateRangeSelectorPanel">
+                        <div class="range-inputs">
+                            <div class="range-input-group">
+                                <label>From:</label>
+                                <input type="date" id="rangeFromDate" class="date-picker">
+                            </div>
+                            <div class="range-input-group">
+                                <label>To:</label>
+                                <input type="date" id="rangeToDate" class="date-picker">
+                            </div>
+                        </div>
+                        <div class="range-actions">
+                            <button id="applyRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Realtime Selector -->
+                    <div class="realtime-selector hidden" id="realtimeSelector">
+                        <div class="time-input-group">
+                            <label>Update Interval (sec):</label>
+                            <input type="number" id="realtimeInterval" value="1" min="1">
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyRealTime" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Stats Grid -->
+    <div class="stats_grid">
+        <!-- Energy Card -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">Total Energy Used</span>
+                    <span class="selected-period">Today</span>
+                </div>
+                <span class="stat-value" data-type="energy">
+                    {% if data.total_energy is defined %}
+                        {{ data.total_energy|round(2) }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Cost Card -->
+        <div class="stat_card" data-type="cost">
+            <div class="stat-icon">
+                <i class="fas fa-euro-sign"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">Total Cost</span>
+                    <span class="selected-period">Today</span>
+                </div>
+                <span class="stat-value" data-type="cost">
+                    {% if data.total_cost is defined %}
+                        {{ data.total_cost|round(2) }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Load Card -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-plug"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">Average Load</span>
+                    <span class="selected-period">Today</span>
+                </div>
+                <span class="stat-value" data-type="load">
+                    {% if data.avg_load is defined %}
+                        {{ data.avg_load|round(0) }}
+                    {% else %}
+                        0
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <!-- CO2 Card -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">CO₂ Emissions</span>
+                    <span class="selected-period">Today</span>
+                </div>
+                <span class="stat-value" data-type="co2">
+                    {% if data.co2 is defined %}
+                        {{ data.co2|round(2) }}
+                    {% else %}
+                        0.00
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Charts Grid -->
+    <div class="charts_grid" id="chartsContainer" style="grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <!-- Cost Trend Chart -->
+        <div class="chart_card" id="costTrendCard">
+            <div class="chart_header">
+                <h2>Energy Cost Trend</h2>
+            </div>
+            <div id="costTrendChart" class="chart_container" style="height: 350px;"></div>
+        </div>
+
+        <!-- Daily Cost Distribution -->
+        <div class="chart_card" id="dailyDistributionCard">
+            <div class="chart_header">
+                <h2>Daily Cost Distribution</h2>
+            </div>
+            <div id="usagePatternChart" class="chart_container" style="height: 350px;"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Energy Bar Modal -->
+<div id="detailModal" class="modal_bar">
+    <div class="modal_bar-content">
+        <span class="modal_bar-close">
+            <i class="fas fa-times"></i>
+        </span>
+        <div class="modal_bar-header">
+            <div class="modal_bar-title-group">
+                <h3 class="modal_bar-title">Interval Details</h3>
+                <span class="modal_bar-date"></span>
+            </div>
+        </div>
+        <div id="detailChartContainer" class="modal_bar-chart"></div>
+    </div>
+</div>
+{% endblock %}
+
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/energy_page.js') }}"></script>
+
+{% endblock %}

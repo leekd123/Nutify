@@ -1,0 +1,36 @@
+# Core Flask dependencies
+Flask==3.0.0
+Flask-SQLAlchemy==3.1.1
+SQLAlchemy==2.0.23
+
+# API and data handling
+marshmallow==3.20.1
+python-dateutil==2.8.2
+pytz==2024.1
+pandas==2.1.4
+numpy==1.26.2
+requests==2.31.0
+
+# Charting
+plotly==5.18.0
+kaleido==0.2.1
+
+# Security headers and CSP
+Flask-Talisman==1.1.0 
+
+# Socket UPS
+flask-socketio==5.3.6
+python-socketio==5.8.0
+python-engineio==4.4.1
+eventlet==0.34.2
+gunicorn==21.2.0
+
+# Encryption
+cryptography==42.0.2
+
+# Task Scheduling
+schedule==1.2.0
+
+# Email validation
+email-validator==2.1.0
+

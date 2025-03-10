@@ -1,0 +1,361 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>Battery Management</h1>
+            <p class="page_subtitle">Comprehensive analysis of your UPS battery status and health</p>
+        </div>
+        <div class="page_actions">
+            <div class="date_range">
+                <button class="date-range-btn" id="dateRangeBtn">
+                    <i class="fas fa-calendar"></i>
+                    <span class="selected-range">Today</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="date-range-dropdown hidden" id="dateRangeDropdown">
+                    <div class="range-options">
+                        <a href="#" data-range="realtime">Real Time</a>
+                        <a href="#" data-range="today">Today</a>
+                        <a href="#" data-range="day">Select Day</a>
+                        <a href="#" data-range="range">Date Range</a>
+                    </div>
+
+                    <!-- Time Range Selector -->
+                    <div class="time-range-selector hidden" id="timeRangeSelector">
+                        <div class="time-inputs">
+                            <div class="time-input-group">
+                                <label>From:</label>
+                                <input type="time" id="fromTime" value="00:00">
+                            </div>
+                            <div class="time-input-group">
+                                <label>To:</label>
+                                <input type="time" id="toTime">
+                            </div>
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyTimeRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Day Selector -->
+                    <div class="day-selector hidden" id="daySelectorPanel">
+                        <input type="date" id="dayPicker" class="date-picker">
+                        <div class="day-actions">
+                            <button id="applyDay" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Range Selector -->
+                    <div class="range-selector hidden" id="dateRangeSelectorPanel">
+                        <div class="range-inputs">
+                            <div class="range-input-group">
+                                <label>From:</label>
+                                <input type="date" id="rangeFromDate" class="date-picker">
+                            </div>
+                            <div class="range-input-group">
+                                <label>To:</label>
+                                <input type="date" id="rangeToDate" class="date-picker">
+                            </div>
+                        </div>
+                        <div class="range-actions">
+                            <button id="applyRange" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+
+                    <!-- Realtime Selector -->
+                    <div class="realtime-selector hidden" id="realtimeSelector">
+                        <div class="time-input-group">
+                            <label>Update Interval (sec):</label>
+                            <input type="number" id="realtimeInterval" value="1" min="1">
+                        </div>
+                        <div class="time-actions">
+                            <button id="applyRealTime" class="btn-primary">Apply</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Top Stats Grid -->
+    <div class="stats_grid">
+        <!-- Battery Charge Status -->
+        {% if metrics.battery_charge is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-battery-full"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Battery Charge</span>
+                        <span class="selected-period"></span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="charge">{{ metrics.battery_charge|round(1) }}%</span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.battery_charge and stats.battery_charge.min is not none and stats.battery_charge.max is not none %}
+                        Min: {{ stats.battery_charge.min|round(1) }}% | Max: {{ stats.battery_charge.max|round(1) }}%
+                    {% else %}
+                        Min: 0% | Max: 100%
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Runtime -->
+        {% if metrics.battery_runtime is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Runtime Remaining</span>
+                        <span class="selected-period"></span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="runtime">{{ (metrics.battery_runtime/60)|round(1) }} min</span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.battery_runtime and stats.battery_runtime.min is not none and stats.battery_runtime.max is not none %}
+                        Min: {{ (stats.battery_runtime.min/60)|round(1) }}min | Max: {{ (stats.battery_runtime.max/60)|round(1) }}min
+                    {% else %}
+                        Min: 0min | Max: 0min
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Voltage -->
+        {% if metrics.battery_voltage is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-bolt"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Battery Voltage</span>
+                        <span class="selected-period"></span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="voltage">{{ metrics.battery_voltage|round(1) }}V</span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.battery_voltage and stats.battery_voltage.min is not none and stats.battery_voltage.max is not none %}
+                        Min: {{ stats.battery_voltage.min|round(1) }}V | Max: {{ stats.battery_voltage.max|round(1) }}V
+                    {% else %}
+                        Min: 0V | Max: 0V
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Temperature -->
+        {% if metrics.battery_temperature is defined %}
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-temperature-high"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Battery Temperature</span>
+                        <span class="selected-period"></span>
+                    </div>
+                </div>
+                <span class="stat-value" data-type="temperature">{{ metrics.battery_temperature|round(1) }}°C</span>
+                <span class="stat-trend">
+                    <i class="fas fa-info-circle"></i>
+                    {% if stats.battery_temperature and stats.battery_temperature.min is not none and stats.battery_temperature.max is not none %}
+                        Min: {{ stats.battery_temperature.min|round(1) }}°C | Max: {{ stats.battery_temperature.max|round(1) }}°C
+                    {% else %}
+                        Min: 0°C | Max: 0°C
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Battery Status -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <div class="stat-title-row">
+                        <span class="stat-label">Battery Status</span>
+                        <span class="selected-period"></span>
+                    </div>
+                </div>
+                <div class="battery-mini-info">
+                    <div class="mini-info-row">
+                        <span class="info-label">Status:</span>
+                        <span class="info-value" data-type="status">
+                            {% if formatted_status %}
+                                {{ formatted_status }}
+                            {% else %}
+                                {{ data.ups_status|default('N/A') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="mini-info-row">
+                        <span class="info-label">Type:</span>
+                        <span class="info-value" data-type="type">
+                            {% if formatted_battery_type %}
+                                {{ formatted_battery_type }}
+                            {% else %}
+                                {{ data.battery_type|default('N/A') }}
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="mini-info-row">
+                        <span class="info-label">Health:</span>
+                        <span class="info-value" data-type="health">{{ battery_health|default('N/A') }}%</span>
+                    </div>
+                    {% if metrics.battery_temperature is not none and metrics.battery_temperature != 'N/A' and metrics.battery_temperature|string|trim != '' %}
+                    <div class="mini-info-row">
+                        <span class="info-label">Temperature:</span>
+                        <span class="info-value" data-type="temperature">{{ metrics.battery_temperature }}°C</span>
+                    </div>
+                    {% endif %}
+                    {% if metrics.battery_date is not none and metrics.battery_date != 'N/A' and metrics.battery_date|string|trim != '' %}
+                    <div class="mini-info-row">
+                        <span class="info-label">Battery Date:</span>
+                        <span class="info-value" data-type="date">{{ metrics.battery_date }}</span>
+                    </div>
+                    {% endif %}
+                    {% if metrics.battery_mfr_date is not none and metrics.battery_mfr_date != 'N/A' and metrics.battery_mfr_date|string|trim != '' %}
+                    <div class="mini-info-row">
+                        <span class="info-label">Mfr Date:</span>
+                        <span class="info-value" data-type="mfr_date">{{ metrics.battery_mfr_date }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Battery Widgets Container MINI WIDGETS -->
+    <div id="batteryWidgetsContainer" class="widgets_container"></div>
+
+    <!-- Main Charts Grid -->
+    <div class="charts_grid">
+        <div class="charts-container">
+            <!-- Main Chart -->
+            <div class="combined_card">
+                <div class="combined_header">
+                    <h2>Battery Analysis</h2>
+                    <p class="combined_subtitle">Level, Runtime and Voltage</p>
+                </div>
+                <div id="combinedBatteryChart" class="chart-container"></div>
+            </div>
+
+            <!-- Temperature Chart -->
+            <div class="combined_card">
+                <div class="combined_header">
+                    <h2>Battery Temperature</h2>
+                    <p class="combined_subtitle">Temperature monitoring</p>
+                </div>
+                <div id="temperatureChart" class="chart-container"></div>
+            </div>
+        </div>
+    </div>
+    <br>
+    <!-- Bottom Section -->
+    <div class="bottom_grid">
+        <!-- Battery Events -->
+        {% if stats.events.available %}
+        <div class="events">
+            <div class="card-header">
+                <h3>Battery Events</h3>
+            </div>
+            <div class="card-body">
+                <div class="events-stats">
+                    <div class="event-stat">
+                        <span class="event-label">Total Events</span>
+                        <span class="event-value" data-type="total">{{ stats.events.count }}</span>
+                    </div>
+                    <div class="event-stat">
+                        <span class="event-label">Total Duration</span>
+                        <span class="event-value" data-type="duration">{{ (stats.events.total_duration/60)|round(1) }} min</span>
+                    </div>
+                    <div class="event-stat">
+                        <span class="event-label">Longest Event</span>
+                        <span class="event-value" data-type="longest">{{ (stats.events.longest_duration/60)|round(1) }} min</span>
+                    </div>
+                </div>
+                <div id="batteryEventsChart"></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Battery Health -->
+        <div class="health">
+            <div class="card-header">
+                <h3>Battery Health</h3>
+            </div>
+            <div class="card-body">
+                <!-- NEW: Mini cards for Battery Health (same markup as Battery Events card) -->
+                <div class="events-stats">
+                    <div class="event-stat">
+                        <span class="event-label">Charge</span>
+                        <span class="event-value" id="healthChargeValue">
+                            {% if metrics.battery_charge is defined %}
+                                {{ metrics.battery_charge|round(1) }}%
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="event-stat">
+                        <span class="event-label">Runtime</span>
+                        <span class="event-value" id="healthRuntimeValue">
+                            {% if metrics.battery_runtime is defined %}
+                                {{ (metrics.battery_runtime/60)|round(1) }} min
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="event-stat">
+                        <span class="event-label">Voltage</span>
+                        <span class="event-value" id="healthVoltageValue">
+                            {% if metrics.battery_voltage is defined %}
+                                {{ metrics.battery_voltage|round(1) }}V
+                                {% if metrics.battery_voltage_nominal is defined %}
+                                    / {{ metrics.battery_voltage_nominal|round(1) }}V
+                                {% endif %}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="health-chart-container">
+                    <div id="batteryHealthChart" data-health="{{ battery_health|default('0') }}" class="battery-health-chart"></div>
+                    <div class="health-tip">
+                        <i class="fas fa-lightbulb"></i>
+                        <span>Tip: A battery health below 60% may require replacement.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/battery_page.js') }}"></script>
+{% endblock %}

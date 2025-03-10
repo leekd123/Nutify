@@ -1,0 +1,158 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}UPS Variables{% endblock %}
+
+{% block content %}
+<div class="page">
+    <!-- Header Section -->
+    <div class="page_header">
+        <div class="page_title">
+            <h1>UPS Variables</h1>
+            <p class="page_subtitle">UPS Variable Management and Control</p>
+        </div>
+    </div>
+
+    <!-- Security Warning and Introduction -->
+    <div class="stats_grid">
+        <!-- Security Warning -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">Attention - UPS Variable Modification</span>
+                </div>
+                <p>This page allows you to modify UPS variables. Improper use can cause:</p>
+                <ul>
+                    <li>System malfunctions</li>
+                    <li>Hardware damage</li>
+                    <li>Unexpected behaviors</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- Introduction -->
+        <div class="stat_card">
+            <div class="stat-icon">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <div class="stat-content">
+                <div class="stat-header">
+                    <span class="stat-label">UPS Variable Management</span>
+                </div>
+                <p>This interface allows you to:</p>
+                <ul>
+                    <li>View current variables</li>
+                    <li>Modify variable values</li>
+                    <li>Monitor changes</li>
+                    <li>Restore default values</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Available Variables List -->
+    <div class="combined_card">
+        <div class="combined_header">
+            <h2>Available Variables</h2>
+            <button id="refreshVariables" class="btn-primary">
+                <i class="fas fa-sync"></i> Refresh
+            </button>
+        </div>
+        <div id="variablesList" class="stats_grid">
+            <!-- The variables will be inserted here dynamically -->
+        </div>
+    </div>
+    <br>
+    <!-- Modification History -->
+    <div class="combined_card">
+        <div class="combined_header">
+            <h2>Modification History</h2>
+            <button id="clearHistory" class="btn-primary btn-small">
+                <i class="fas fa-eraser"></i> Clear
+            </button>
+        </div>
+        <div id="modificationHistory" class="command-log-container">
+            <!-- The history will be inserted here -->
+        </div>
+    </div>
+
+    <!-- Socket Status -->
+    <div class="upscmd_socket-status">
+        <span class="socket_connected hidden">🟢 Socket Connected</span>
+        <span class="socket_disconnected">🔴 Socket Disconnected</span>
+    </div>
+</div>
+
+<!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="editModalLabel">Edit Variable</h3>
+        </div>
+        <div class="modal-body">
+            <form id="editForm">
+                <div class="form-group">
+                    <label>Variable Name:</label>
+                    <span id="variableName"></span>
+                </div>
+                <div class="form-group">
+                    <label>Current Value:</label>
+                    <span id="currentValue"></span>
+                </div>
+                <div class="form-group">
+                    <label for="newValue">New Value:</label>
+                    <input type="text" id="newValue" required>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-primary" id="saveVariable">Execute</button>
+            <button type="button" class="btn-primary modal-close">Close</button>
+        </div>
+    </div>
+</div>
+
+<!-- Confirm Delete Modal -->
+<div id="clearConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Confirm Delete</h3>
+        </div>
+        <div class="modal-body">
+            <p>Are you sure you want to delete the modification history?</p>
+            <p>This operation cannot be undone.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-primary" id="confirmClear">Delete</button>
+            <button type="button" class="btn-primary modal-close">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Info Modal -->
+<div id="infoModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Variable Information</h3>
+        </div>
+        <div class="modal-body">
+            <h4 id="infoTitle" class="mb-3"></h4>
+            <p id="infoDescription" class="mb-3"></p>
+            <div class="warning-section">
+                <i class="fas fa-exclamation-triangle"></i>
+                <span id="infoWarning"></span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn-primary modal-close">Close</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/page_wrapper.js') }}"></script>
+<script src="{{ url_for('static', filename='js/upsrw_page.js') }}"></script>
+{% endblock %} 
