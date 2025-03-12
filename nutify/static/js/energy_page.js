@@ -202,6 +202,8 @@ class EnergyPage extends BasePage {
                         costIcon.classList.add('fa-rupee-sign');
                     } else if (this.currency === 'RUB') {
                         costIcon.classList.add('fa-ruble-sign');
+                    } else if (this.currency === 'KRW') {
+                        costIcon.classList.add('fa-won-sign');
                     } else {
                         costIcon.classList.add('fa-dollar-sign');
                     }
@@ -225,7 +227,8 @@ class EnergyPage extends BasePage {
             'INR': '₹',
             'NZD': 'NZ$',
             'BRL': 'R$',
-            'RUB': '₽'
+            'RUB': '₽',
+            'KRW': '₩'
         };
         return symbols[currency] || currency;
     }

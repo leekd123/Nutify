@@ -487,6 +487,7 @@ const currencyIcons = {
     'NZD': 'fa-dollar-sign',
     'BRL': 'fa-money-bill',
     'RUB': 'fa-ruble-sign',
+    'KRW': 'fa-won-sign',
     'default': 'fa-money-bill'
 };
 
@@ -519,7 +520,8 @@ function updateCurrencySymbol(currency) {
         'INR': 'INR',
         'NZD': 'NZD',
         'BRL': 'BRL',
-        'RUB': 'RUB'
+        'RUB': 'RUB',
+        'KRW': 'KRW'
     };
     document.getElementById('currencySymbol').textContent = symbolMap[currency] || currency;
 }
@@ -530,33 +532,36 @@ function updateEnergyPageCurrencySymbol(currency) {
         'USD': '$', 'EUR': '€', 'GBP': '£', 'JPY': '¥',
         'AUD': 'A$', 'CAD': 'C$', 'CHF': 'Fr',
         'CNY': '¥', 'INR': '₹', 'NZD': 'NZ$',
-        'BRL': 'R$', 'RUB': '₽'
+        'BRL': 'R$', 'RUB': '₽', 'KRW': '₩'
     };
     const energyPageSymbol = document.querySelector('.energy_stat_card .stat-icon i.fas');
     if (energyPageSymbol) {
         if (currency === 'EUR') {
-            energyPageSymbol.classList.remove('fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-euro-sign');
         } else if (currency === 'USD') {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-dollar-sign');
         } else if (currency === 'GBP') {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-pound-sign');
         } else if (currency === 'JPY' || currency === 'CNY') {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-yen-sign');
         } else if (currency === 'CHF') {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-rupee-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-rupee-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-franc-sign');
         } else if (currency === 'INR') {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-rupee-sign');
         } else if (currency === 'RUB') {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-ruble-sign');
+        } else if (currency === 'KRW') {
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-dollar-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-won-sign');
+            energyPageSymbol.classList.add('fa-won-sign');
         } else {
-            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign');
+            energyPageSymbol.classList.remove('fa-euro-sign', 'fa-pound-sign', 'fa-yen-sign', 'fa-franc-sign', 'fa-rupee-sign', 'fa-ruble-sign', 'fa-won-sign');
             energyPageSymbol.classList.add('fa-dollar-sign');
         }
     }

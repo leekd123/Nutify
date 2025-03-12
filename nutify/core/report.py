@@ -606,7 +606,8 @@ class ReportManager:
                 'INR': '₹',
                 'NZD': 'NZ$',
                 'BRL': 'R$',
-                'RUB': '₽'
+                'RUB': '₽',
+                'KRW': '₩'
             }
             currency_symbol = currency_symbols.get(currency, '€')
             
@@ -1014,7 +1015,8 @@ class ReportManager:
                 'INR': '₹',
                 'NZD': 'NZ$',
                 'BRL': 'R$',
-                'RUB': '₽'
+                'RUB': '₽',
+                'KRW': '₩'
             }
             currency_symbol = currency_symbols.get(currency, '€')
             
